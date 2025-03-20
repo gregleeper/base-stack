@@ -1,27 +1,22 @@
-import { useTranslation } from "react-i18next"
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useRouteError } from "react-router"
 import type { LinksFunction } from "react-router"
-import { useChangeLanguage } from "remix-i18next/react"
 import type { Route } from "./+types/root"
-import { LanguageSwitcher } from "./library/language-switcher"
-import { ClientHintCheck, getHints } from "./services/client-hints"
+import { Toaster } from "./components/ui/sonner"
+import { ClientHintCheck, getHints, useHints } from "./services/client-hints"
 import tailwindcss from "./tailwind.css?url"
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-	const { lang, clientEnv } = context
+	const { clientEnv, user } = context
 	const hints = getHints(request)
-	return { lang, clientEnv, hints }
+	return { clientEnv, hints, user }
 }
+
+export type RootLoaderData = Awaited<ReturnType<typeof loader>>
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: tailwindcss }]
 
-export const handle = {
-	i18n: "common",
-}
-
 export default function App({ loaderData }: Route.ComponentProps) {
-	const { lang, clientEnv } = loaderData
-	useChangeLanguage(lang)
+	const { clientEnv } = loaderData
 	return (
 		<>
 			<Outlet />
@@ -32,9 +27,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
 }
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
-	const { i18n } = useTranslation()
+	const hints = useHints()
 	return (
-		<html className="overflow-y-auto overflow-x-hidden" lang={i18n.language} dir={i18n.dir()}>
+		<html className={`${hints?.theme === "dark" ? "dark" : "light"} overflow-y-auto overflow-x-hidden`} lang="en">
 			<head>
 				<ClientHintCheck />
 				<meta charSet="utf-8" />
@@ -43,8 +38,9 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 				<Links />
 			</head>
 			<body className="w-full h-full">
-				<LanguageSwitcher />
+				{/* <LanguageSwitcher /> */}
 				{children}
+				<Toaster />
 				<ScrollRestoration />
 				<Scripts />
 			</body>
@@ -54,7 +50,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
 export const ErrorBoundary = () => {
 	const error = useRouteError()
-	const { t } = useTranslation()
 
 	const errorStatusCode = isRouteErrorResponse(error) ? error.status : "500"
 
@@ -62,8 +57,12 @@ export const ErrorBoundary = () => {
 		<div className="placeholder-index relative h-full min-h-screen w-screen flex items-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-blue-950 dark:to-blue-900 justify-center dark:bg-white sm:pb-16 sm:pt-8">
 			<div className="relative mx-auto max-w-[90rem] sm:px-6 lg:px-8">
 				<div className="relative  min-h-72 flex flex-col justify-center sm:overflow-hidden sm:rounded-2xl p-1 md:p-4 lg:p-6">
-					<h1 className="text-center w-full text-red-600 text-2xl pb-2">{t(`error.${errorStatusCode}.title`)}</h1>
-					<p className="text-lg dark:text-white text-center w-full">{t(`error.${errorStatusCode}.description`)}</p>
+					<h1 className="text-center w-full text-red-600 text-2xl pb-2">Error</h1>
+					<p className="text-lg dark:text-white text-center w-full">An error occurred</p>
+					<p className="text-lg dark:text-white text-center w-full">Error status code: {errorStatusCode}</p>
+					<p className="text-lg dark:text-white text-center w-full">
+						Error message: {error instanceof Error ? error.message : "Unknown error"}
+					</p>
 				</div>
 			</div>
 		</div>

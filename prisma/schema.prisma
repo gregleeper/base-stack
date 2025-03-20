@@ -1,0 +1,573 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String                       @id @default(uuid())
+  email                   String                       @unique
+  name                    String
+  password                String
+  createdAt               DateTime                     @default(now())
+  updatedAt               DateTime                     @updatedAt
+  createdBy               String?
+  updatedBy               String?
+  isDeleted               Boolean                      @default(false)
+  deletedAt               DateTime?
+  bookings                Booking[]
+  approvalsGiven          BookingApproval[]
+  participatingIn         BookingParticipant[]
+  notificationRecipients  NotificationRecipient[]
+  recurringBookings       RecurringBooking[]
+  roles                   UserRole[]
+  notificationPreferences UserNotificationPreference[]
+  userGroups              UserGroupMember[]
+  BookingHost             BookingHost[]
+}
+
+model UserRole {
+  id          String             @id @default(uuid())
+  name        String             @unique
+  description String?
+  users       User[]
+  permissions RoleToPermission[]
+
+  @@index([name])
+}
+
+model Permission {
+  id          String             @id @default(uuid())
+  action      String
+  entity      String
+  access      String
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  roles       RoleToPermission[]
+
+  @@unique([action, entity, access])
+  @@index([action, entity, access])
+}
+
+model RoleToPermission {
+  id           String     @id @default(uuid())
+  roleId       String
+  permissionId String
+  role         UserRole   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model BuildingCategory {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  buildings   Building[]
+
+  @@index([name])
+}
+
+model RoomType {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+  rooms       Room[]
+
+  @@index([name])
+}
+
+model Building {
+  id         String           @id @default(uuid())
+  name       String
+  address    String
+  categoryId String
+  floors     Int              @default(1)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  createdBy  String?
+  updatedBy  String?
+  isDeleted  Boolean          @default(false)
+  deletedAt  DateTime?
+  category   BuildingCategory @relation(fields: [categoryId], references: [id])
+  rooms      Room[]
+
+  @@index([categoryId])
+}
+
+model RoomFeature {
+  id    String         @id @default(uuid())
+  name  String         @unique
+  rooms RoomFeatures[]
+}
+
+model RoomFeatures {
+  roomId    String
+  featureId String
+  feature   RoomFeature @relation(fields: [featureId], references: [id])
+  room      Room        @relation(fields: [roomId], references: [id])
+
+  @@id([roomId, featureId])
+  @@index([roomId])
+  @@index([featureId])
+}
+
+model Equipment {
+  id            String             @id @default(uuid())
+  name          String
+  type          String
+  location      String?
+  isAvailable   Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  createdBy     String?
+  updatedBy     String?
+  isDeleted     Boolean            @default(false)
+  deletedAt     DateTime?
+  bookings      BookingEquipment[]
+  roomEquipment RoomEquipment[]
+}
+
+model RoomEquipment {
+  roomId      String
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  room        Room      @relation(fields: [roomId], references: [id])
+
+  @@id([roomId, equipmentId])
+  @@index([roomId])
+  @@index([equipmentId])
+}
+
+model Room {
+  id                String             @id @default(uuid())
+  name              String
+  floor             Int                @default(1)
+  capacity          Int
+  isActive          Boolean            @default(true)
+  typeId            String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  buildingId        String
+  createdBy         String?
+  updatedBy         String?
+  isDeleted         Boolean            @default(false)
+  deletedAt         DateTime?
+  bookings          Booking[]
+  recurringBookings RecurringBooking[]
+  building          Building           @relation(fields: [buildingId], references: [id])
+  type              RoomType           @relation(fields: [typeId], references: [id])
+  availabilityHours RoomAvailability[]
+  equipment         RoomEquipment[]
+  features          RoomFeatures[]
+
+  @@index([buildingId])
+  @@index([typeId])
+}
+
+model RoomAvailability {
+  id          String    @id @default(uuid())
+  roomId      String
+  dayOfWeekId String
+  startTime   String
+  endTime     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   String?
+  updatedBy   String?
+  dayOfWeek   DayOfWeek @relation(fields: [dayOfWeekId], references: [id])
+  room        Room      @relation(fields: [roomId], references: [id])
+
+  @@index([roomId])
+  @@index([dayOfWeekId])
+}
+
+model DayOfWeek {
+  id                  String                @id @default(uuid())
+  name                String                @unique
+  value               Int                   @unique
+  description         String?
+  RecurringBookingDay RecurringBookingDay[]
+  roomAvailability    RoomAvailability[]
+
+  @@index([name])
+  @@index([value])
+}
+
+model Booking {
+  id                String               @id @default(uuid())
+  title             String
+  description       String?
+  notes             String?
+  startTime         DateTime
+  endTime           DateTime
+  statusId          String
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  roomId            String
+  userId            String
+  bookingCategoryId String
+  isPublic          Boolean              @default(false)
+  openEnrollment    Boolean              @default(false)
+  isAfterHours      Boolean              @default(false)
+  createdBy         String
+  updatedBy         String?
+  isDeleted         Boolean              @default(false)
+  deletedAt         DateTime?
+  bookingCategory   BookingCategory      @relation(fields: [bookingCategoryId], references: [id])
+  user              User                 @relation(fields: [userId], references: [id])
+  room              Room                 @relation(fields: [roomId], references: [id])
+  status            BookingStatus        @relation(fields: [statusId], references: [id])
+  approvals         BookingApproval[]
+  equipment         BookingEquipment[]
+  participants      BookingParticipant[]
+  hosts             BookingHost[]
+  notifications     Notification[]
+
+  @@index([roomId, startTime, endTime])
+  @@index([statusId])
+  @@index([userId])
+}
+
+model BookingCategory {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  bookings    Booking[]
+}
+
+model BookingParticipant {
+  id        String           @id @default(uuid())
+  bookingId String
+  userId    String
+  statusId  String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  status    AttendanceStatus @relation(fields: [statusId], references: [id])
+  user      User             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  booking   Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, userId])
+  @@index([statusId])
+  @@index([bookingId])
+  @@index([userId])
+}
+
+model BookingHost {
+  id        String           @id @default(uuid())
+  bookingId String
+  userId    String
+  statusId  String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  status    AttendanceStatus @relation(fields: [statusId], references: [id])
+  user      User             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  booking   Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, userId])
+  @@index([statusId])
+  @@index([bookingId])
+  @@index([userId])
+}
+
+model AttendanceStatus {
+  id           String               @id @default(uuid())
+  name         String               @unique
+  description  String?
+  participants BookingParticipant[]
+  BookingHost  BookingHost[]
+
+  @@index([name])
+}
+
+model BookingEquipment {
+  bookingId   String
+  equipmentId String
+  quantity    Int       @default(1)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@id([bookingId, equipmentId])
+  @@index([bookingId])
+  @@index([equipmentId])
+}
+
+model BookingApproval {
+  id            String         @id @default(uuid())
+  bookingId     String
+  approverId    String
+  statusId      String
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  status        ApprovalStatus @relation(fields: [statusId], references: [id])
+  approver      User           @relation(fields: [approverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  booking       Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+
+  @@index([bookingId])
+  @@index([approverId])
+  @@index([statusId])
+}
+
+model ApprovalStatus {
+  id          String            @id @default(uuid())
+  name        String            @unique
+  description String?
+  approvals   BookingApproval[]
+
+  @@index([name])
+}
+
+model BookingStatus {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  bookings    Booking[]
+
+  @@index([name])
+}
+
+model RecurringBooking {
+  id          String                @id @default(uuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  startTime   String
+  endTime     String
+  frequencyId String
+  interval    Int                   @default(1)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  roomId      String
+  userId      String
+  createdBy   String
+  updatedBy   String?
+  isDeleted   Boolean               @default(false)
+  deletedAt   DateTime?
+  user        User                  @relation(fields: [userId], references: [id])
+  room        Room                  @relation(fields: [roomId], references: [id])
+  frequency   RecurringFrequency    @relation(fields: [frequencyId], references: [id])
+  daysOfWeek  RecurringBookingDay[]
+
+  @@index([roomId])
+  @@index([userId])
+  @@index([frequencyId])
+}
+
+model RecurringBookingDay {
+  recurringBookingId String
+  dayOfWeekId        String
+  dayOfWeek          DayOfWeek        @relation(fields: [dayOfWeekId], references: [id])
+  recurringBooking   RecurringBooking @relation(fields: [recurringBookingId], references: [id], onDelete: Cascade)
+
+  @@id([recurringBookingId, dayOfWeekId])
+  @@index([recurringBookingId])
+  @@index([dayOfWeekId])
+}
+
+model RecurringFrequency {
+  id          String             @id @default(uuid())
+  name        String             @unique
+  description String?
+  bookings    RecurringBooking[]
+
+  @@index([name])
+}
+
+model NotificationType {
+  id              String                       @id @default(uuid())
+  name            String                       @unique
+  description     String?
+  notifications   Notification[]
+  userPreferences UserNotificationPreference[]
+
+  @@index([name])
+}
+
+model NotificationStatus {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  description   String?
+  notifications Notification[]
+
+  @@index([name])
+}
+
+model NotificationPriority {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  description   String?
+  notifications Notification[]
+
+  @@index([name])
+}
+
+model DeliveryMethod {
+  id                String                         @id @default(uuid())
+  name              String                         @unique
+  description       String?
+  recipientMethods  NotificationRecipientMethod[]
+  preferenceOptions UserPreferenceDeliveryMethod[]
+
+  @@index([name])
+}
+
+model DeliveryStatus {
+  id          String                  @id @default(uuid())
+  name        String                  @unique
+  description String?
+  recipients  NotificationRecipient[]
+
+  @@index([name])
+}
+
+model Notification {
+  id           String                  @id @default(uuid())
+  title        String
+  content      String
+  createdAt    DateTime                @default(now())
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  typeId       String
+  statusId     String
+  priorityId   String
+  bookingId    String?
+  approvalId   String?
+  errorMessage String?
+  retryCount   Int                     @default(0)
+  maxRetries   Int                     @default(3)
+  createdBy    String
+  updatedAt    DateTime                @updatedAt
+  updatedBy    String?
+  isDeleted    Boolean                 @default(false)
+  deletedAt    DateTime?
+  approval     BookingApproval?        @relation(fields: [approvalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  booking      Booking?                @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  priority     NotificationPriority    @relation(fields: [priorityId], references: [id])
+  status       NotificationStatus      @relation(fields: [statusId], references: [id])
+  type         NotificationType        @relation(fields: [typeId], references: [id])
+  recipients   NotificationRecipient[]
+
+  @@index([typeId])
+  @@index([statusId])
+  @@index([priorityId])
+  @@index([bookingId])
+  @@index([approvalId])
+  @@index([scheduledFor])
+}
+
+model NotificationRecipient {
+  id               String                        @id @default(uuid())
+  notificationId   String
+  userId           String
+  readAt           DateTime?
+  deliveryStatusId String
+  deliveryStatus   DeliveryStatus                @relation(fields: [deliveryStatusId], references: [id])
+  user             User                          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  notification     Notification                  @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  deliveryMethods  NotificationRecipientMethod[]
+
+  @@unique([notificationId, userId])
+  @@index([notificationId])
+  @@index([userId])
+  @@index([deliveryStatusId])
+}
+
+model NotificationRecipientMethod {
+  id               String                @id @default(uuid())
+  recipientId      String
+  deliveryMethodId String
+  deliveryMethod   DeliveryMethod        @relation(fields: [deliveryMethodId], references: [id])
+  recipient        NotificationRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([recipientId, deliveryMethodId])
+  @@index([recipientId])
+  @@index([deliveryMethodId])
+}
+
+model UserNotificationPreference {
+  id                 String                         @id @default(uuid())
+  userId             String
+  notificationTypeId String
+  enabled            Boolean                        @default(true)
+  notificationType   NotificationType               @relation(fields: [notificationTypeId], references: [id])
+  user               User                           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  deliveryMethods    UserPreferenceDeliveryMethod[]
+
+  @@unique([userId, notificationTypeId])
+  @@index([userId])
+  @@index([notificationTypeId])
+}
+
+model UserPreferenceDeliveryMethod {
+  id               String                     @id @default(uuid())
+  preferenceId     String
+  deliveryMethodId String
+  deliveryMethod   DeliveryMethod             @relation(fields: [deliveryMethodId], references: [id])
+  preference       UserNotificationPreference @relation(fields: [preferenceId], references: [id], onDelete: Cascade)
+
+  @@unique([preferenceId, deliveryMethodId])
+  @@index([preferenceId])
+  @@index([deliveryMethodId])
+}
+
+model UserGroup {
+  id          String            @id @default(uuid())
+  name        String            @unique
+  description String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  createdBy   String?
+  updatedBy   String?
+  isDeleted   Boolean           @default(false)
+  deletedAt   DateTime?
+  members     UserGroupMember[]
+  access      ResourceAccess[]
+
+  @@index([name])
+}
+
+model UserGroupMember {
+  userId     String
+  groupId    String
+  assignedAt DateTime  @default(now())
+  assignedBy String?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group      UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@index([userId])
+  @@index([groupId])
+}
+
+model ResourceAccess {
+  id           String    @id @default(uuid())
+  userGroupId  String
+  resourceType String // e.g., "room", "equipment", "building"
+  resourceId   String // Generic ID for any resource type
+  canView      Boolean   @default(true)
+  canBook      Boolean   @default(false)
+  canApprove   Boolean   @default(false)
+  canManage    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  createdBy    String?
+  updatedBy    String?
+  userGroup    UserGroup @relation(fields: [userGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([userGroupId, resourceType, resourceId])
+  @@index([userGroupId])
+  @@index([resourceType, resourceId])
+}
