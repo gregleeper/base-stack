@@ -288,21 +288,23 @@ async function createReminderNotifications() {
 /**
  * Send a notification through all delivery methods
  */
-async function sendNotification(notification: Prisma.NotificationGetPayload<{
-	include: {
-		type: true,
-		recipients: {
-			include: {
-				user: true,
-				deliveryMethods: {
-					include: {
-						deliveryMethod: true,
-					},
-				},
-			},
-		},
-	}
-}>) {
+async function sendNotification(
+	notification: Prisma.NotificationGetPayload<{
+		include: {
+			type: true
+			recipients: {
+				include: {
+					user: true
+					deliveryMethods: {
+						include: {
+							deliveryMethod: true
+						}
+					}
+				}
+			}
+		}
+	}>
+) {
 	for (const recipient of notification.recipients) {
 		for (const method of recipient.deliveryMethods) {
 			switch (method.deliveryMethod.name) {
@@ -335,16 +337,16 @@ async function sendNotification(notification: Prisma.NotificationGetPayload<{
 async function sendEmailNotification(
 	notification: Prisma.NotificationGetPayload<{
 		include: {
-			type: true,
+			type: true
 			recipients: {
 				include: {
-					user: true,
+					user: true
 					deliveryMethods: {
 						include: {
-							deliveryMethod: true,
-						},
-					},
-				},
+							deliveryMethod: true
+						}
+					}
+				}
 			}
 		}
 	}>,
@@ -356,16 +358,16 @@ async function sendEmailNotification(
 	// 3. Handle any errors and return a success/failure status
 
 	// Customize email content based on notification type
-	let emailSubject = notification.title;
+	let emailSubject = notification.title
 
 	// Add specific formatting for different notification types
 	if (notification.type.name === "BOOKING_REMINDER") {
 		// Add specific reminder formatting/content
-		emailSubject = `🔔 ${emailSubject}`;
+		emailSubject = `🔔 ${emailSubject}`
 		// HTML content would be used in a real implementation
 	} else if (notification.type.name === "BOOKING_UPDATED") {
 		// Add specific update notification formatting/content
-		emailSubject = `📝 ${emailSubject}`;
+		emailSubject = `📝 ${emailSubject}`
 		// HTML content would be used in a real implementation
 	}
 
@@ -380,31 +382,32 @@ async function sendEmailNotification(
  * Send a push notification
  * This is a placeholder implementation
  */
-async function sendPushNotification(notification: Prisma.NotificationGetPayload<{
-	include: {
-		type: true,
-		recipients: {
-			include: {
-				user: true,
-				deliveryMethods: {
-					include: {
-						deliveryMethod: true,
-					},
-				},
-			},
+async function sendPushNotification(
+	notification: Prisma.NotificationGetPayload<{
+		include: {
+			type: true
+			recipients: {
+				include: {
+					user: true
+					deliveryMethods: {
+						include: {
+							deliveryMethod: true
+						}
+					}
+				}
+			}
 		}
-	}
-}>,
+	}>,
 	user: User
 ) {
 	// Customize push notification content based on type
-	let pushTitle = notification.title;
+	let pushTitle = notification.title
 
 	// Add icons or specific formatting based on notification type
 	if (notification.type.name === "BOOKING_REMINDER") {
-		pushTitle = `🔔 ${pushTitle}`;
+		pushTitle = `🔔 ${pushTitle}`
 	} else if (notification.type.name === "BOOKING_UPDATED") {
-		pushTitle = `📝 ${pushTitle}`;
+		pushTitle = `📝 ${pushTitle}`
 	}
 
 	// Simulate push sending delay

@@ -7,7 +7,6 @@ import babel from "vite-plugin-babel"
 import { iconsSpritesheet } from "vite-plugin-icons-spritesheet"
 import tsconfigPaths from "vite-tsconfig-paths"
 
-
 import "temporal-polyfill/global"
 
 export default defineConfig({

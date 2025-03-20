@@ -14,7 +14,6 @@ export async function getBookings(options?: {
 }) {
 	const { roomId, userId, status, from, to } = options || {}
 
-
 	return prisma.booking.findMany({
 		where: {
 			roomId: roomId ? roomId : undefined,

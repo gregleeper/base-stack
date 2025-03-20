@@ -39,53 +39,53 @@ async function seedNotificationTypes() {
 			{
 				id: "BOOKING_CREATED",
 				name: "BOOKING_CREATED",
-				description: "Sent when a new booking is created"
+				description: "Sent when a new booking is created",
 			},
 			{
 				id: "BOOKING_UPDATED",
 				name: "BOOKING_UPDATED",
-				description: "Sent when a booking is updated"
+				description: "Sent when a booking is updated",
 			},
 			{
 				id: "BOOKING_CANCELLED",
 				name: "BOOKING_CANCELLED",
-				description: "Sent when a booking is cancelled"
+				description: "Sent when a booking is cancelled",
 			},
 			{
 				id: "BOOKING_APPROVED",
 				name: "BOOKING_APPROVED",
-				description: "Sent when a booking is approved"
+				description: "Sent when a booking is approved",
 			},
 			{
 				id: "BOOKING_REJECTED",
 				name: "BOOKING_REJECTED",
-				description: "Sent when a booking is rejected"
+				description: "Sent when a booking is rejected",
 			},
 			{
 				id: "BOOKING_REMINDER",
 				name: "BOOKING_REMINDER",
-				description: "Reminder for upcoming bookings"
+				description: "Reminder for upcoming bookings",
 			},
 			{
 				id: "ROOM_MAINTENANCE",
 				name: "ROOM_MAINTENANCE",
-				description: "Notification about room maintenance"
+				description: "Notification about room maintenance",
 			},
 			{
 				id: "SYSTEM_ANNOUNCEMENT",
 				name: "SYSTEM_ANNOUNCEMENT",
-				description: "System-wide announcements"
+				description: "System-wide announcements",
 			},
 			{
 				id: "USER_MENTIONED",
 				name: "USER_MENTIONED",
-				description: "Notification when a user is mentioned"
+				description: "Notification when a user is mentioned",
 			},
 			{
 				id: "RESOURCE_CONFLICT",
 				name: "RESOURCE_CONFLICT",
-				description: "Notification about resource booking conflicts"
-			}
+				description: "Notification about resource booking conflicts",
+			},
 		]
 
 		// Define notification statuses
@@ -93,28 +93,28 @@ async function seedNotificationTypes() {
 			{
 				id: "PENDING",
 				name: "PENDING",
-				description: "Notification is pending delivery"
+				description: "Notification is pending delivery",
 			},
 			{
 				id: "SENT",
 				name: "SENT",
-				description: "Notification has been sent"
+				description: "Notification has been sent",
 			},
 			{
 				id: "DELIVERED",
 				name: "DELIVERED",
-				description: "Notification has been delivered"
+				description: "Notification has been delivered",
 			},
 			{
 				id: "READ",
 				name: "READ",
-				description: "Notification has been read by the recipient"
+				description: "Notification has been read by the recipient",
 			},
 			{
 				id: "FAILED",
 				name: "FAILED",
-				description: "Notification delivery failed"
-			}
+				description: "Notification delivery failed",
+			},
 		]
 
 		// Define notification priorities
@@ -122,23 +122,23 @@ async function seedNotificationTypes() {
 			{
 				id: "LOW",
 				name: "LOW",
-				description: "Low priority notification"
+				description: "Low priority notification",
 			},
 			{
 				id: "NORMAL",
 				name: "NORMAL",
-				description: "Normal priority notification"
+				description: "Normal priority notification",
 			},
 			{
 				id: "HIGH",
 				name: "HIGH",
-				description: "High priority notification"
+				description: "High priority notification",
 			},
 			{
 				id: "URGENT",
 				name: "URGENT",
-				description: "Urgent notification"
-			}
+				description: "Urgent notification",
+			},
 		]
 
 		// Define delivery methods
@@ -146,23 +146,23 @@ async function seedNotificationTypes() {
 			{
 				id: "EMAIL",
 				name: "EMAIL",
-				description: "Deliver notification via email"
+				description: "Deliver notification via email",
 			},
 			{
 				id: "IN_APP",
 				name: "IN_APP",
-				description: "Deliver notification in-app"
+				description: "Deliver notification in-app",
 			},
 			{
 				id: "PUSH",
 				name: "PUSH",
-				description: "Deliver notification via push notification"
+				description: "Deliver notification via push notification",
 			},
 			{
 				id: "SMS",
 				name: "SMS",
-				description: "Deliver notification via SMS"
-			}
+				description: "Deliver notification via SMS",
+			},
 		]
 
 		// Define delivery statuses
@@ -170,23 +170,23 @@ async function seedNotificationTypes() {
 			{
 				id: "PENDING",
 				name: "PENDING",
-				description: "Delivery is pending"
+				description: "Delivery is pending",
 			},
 			{
 				id: "DELIVERED",
 				name: "DELIVERED",
-				description: "Successfully delivered"
+				description: "Successfully delivered",
 			},
 			{
 				id: "FAILED",
 				name: "FAILED",
-				description: "Delivery failed"
+				description: "Delivery failed",
 			},
 			{
 				id: "READ",
 				name: "READ",
-				description: "Notification was read by recipient"
-			}
+				description: "Notification was read by recipient",
+			},
 		]
 
 		// Create notification types
@@ -196,12 +196,12 @@ async function seedNotificationTypes() {
 
 		for (const type of notificationTypes) {
 			const existingType = await prisma.notificationType.findUnique({
-				where: { id: type.id }
+				where: { id: type.id },
 			})
 
 			if (!existingType) {
 				await prisma.notificationType.create({
-					data: type
+					data: type,
 				})
 				createdTypes++
 				logger.info(`Created notification type: ${type.name}`)
@@ -218,12 +218,12 @@ async function seedNotificationTypes() {
 
 		for (const status of notificationStatuses) {
 			const existingStatus = await prisma.notificationStatus.findUnique({
-				where: { id: status.id }
+				where: { id: status.id },
 			})
 
 			if (!existingStatus) {
 				await prisma.notificationStatus.create({
-					data: status
+					data: status,
 				})
 				createdStatuses++
 				logger.info(`Created notification status: ${status.name}`)
@@ -240,12 +240,12 @@ async function seedNotificationTypes() {
 
 		for (const priority of notificationPriorities) {
 			const existingPriority = await prisma.notificationPriority.findUnique({
-				where: { id: priority.id }
+				where: { id: priority.id },
 			})
 
 			if (!existingPriority) {
 				await prisma.notificationPriority.create({
-					data: priority
+					data: priority,
 				})
 				createdPriorities++
 				logger.info(`Created notification priority: ${priority.name}`)
@@ -262,12 +262,12 @@ async function seedNotificationTypes() {
 
 		for (const method of deliveryMethods) {
 			const existingMethod = await prisma.deliveryMethod.findUnique({
-				where: { id: method.id }
+				where: { id: method.id },
 			})
 
 			if (!existingMethod) {
 				await prisma.deliveryMethod.create({
-					data: method
+					data: method,
 				})
 				createdMethods++
 				logger.info(`Created delivery method: ${method.name}`)
@@ -284,12 +284,12 @@ async function seedNotificationTypes() {
 
 		for (const status of deliveryStatuses) {
 			const existingStatus = await prisma.deliveryStatus.findUnique({
-				where: { id: status.id }
+				where: { id: status.id },
 			})
 
 			if (!existingStatus) {
 				await prisma.deliveryStatus.create({
-					data: status
+					data: status,
 				})
 				createdDeliveryStatuses++
 				logger.info(`Created delivery status: ${status.name}`)
@@ -306,7 +306,6 @@ async function seedNotificationTypes() {
 		logger.success(`Created ${createdPriorities} notification priorities (${skippedPriorities} already existed)`)
 		logger.success(`Created ${createdMethods} delivery methods (${skippedMethods} already existed)`)
 		logger.success(`Created ${createdDeliveryStatuses} delivery statuses (${skippedDeliveryStatuses} already existed)`)
-
 	} catch (error) {
 		logger.error("Error seeding notification types:")
 		logger.error(error)

@@ -12,8 +12,8 @@ const server = await createHonoServer({
 })
 
 // Initialize cron jobs if running in a server environment
-if (typeof window === 'undefined') {
-	initCronJobs();
+if (typeof window === "undefined") {
+	initCronJobs()
 }
 
 export default server

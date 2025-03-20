@@ -39,39 +39,39 @@ async function seedAttendanceStatuses() {
 		const attendanceStatuses = [
 			{
 				name: "Pending",
-				description: "Invitation has been sent but not yet responded to"
+				description: "Invitation has been sent but not yet responded to",
 			},
 			{
 				name: "Accepted",
-				description: "Person has accepted the invitation to attend"
+				description: "Person has accepted the invitation to attend",
 			},
 			{
 				name: "Declined",
-				description: "Person has declined the invitation to attend"
+				description: "Person has declined the invitation to attend",
 			},
 			{
 				name: "Tentative",
-				description: "Person has tentatively accepted the invitation"
+				description: "Person has tentatively accepted the invitation",
 			},
 			{
 				name: "No Response",
-				description: "Person has not responded to the invitation"
+				description: "Person has not responded to the invitation",
 			},
 			{
 				name: "Confirmed",
-				description: "Attendance has been confirmed"
+				description: "Attendance has been confirmed",
 			},
 			{
 				name: "Cancelled",
-				description: "Person cancelled their attendance"
+				description: "Person cancelled their attendance",
 			},
 			{
 				name: "No Show",
-				description: "Person did not attend despite accepting"
+				description: "Person did not attend despite accepting",
 			},
 			{
 				name: "Present",
-				description: "Person attended the event"
+				description: "Person attended the event",
 			},
 		]
 
@@ -104,7 +104,6 @@ async function seedAttendanceStatuses() {
 		logger.info(`- Created ${created} new attendance statuses`)
 		logger.info(`- Found ${existing} existing attendance statuses`)
 		logger.info(`- Total: ${attendanceStatuses.length} attendance statuses\n`)
-
 	} catch (error) {
 		logger.error("An error occurred while seeding attendance statuses:")
 		logger.error(error)

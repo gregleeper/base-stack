@@ -3,13 +3,13 @@ import { prisma } from "~/services/db.server"
 
 export async function checkRoomAvailability(roomIds: string[], startDateTime: string, endDateTime: string) {
 	// Normalize roomIds - handle the case where we get a comma-separated string in an array
-	const normalizedRoomIds = roomIds.flatMap(id => {
-		if (id.includes(',')) {
+	const normalizedRoomIds = roomIds.flatMap((id) => {
+		if (id.includes(",")) {
 			// If a single entry contains commas, split it into multiple IDs
-			return id.split(',');
+			return id.split(",")
 		}
-		return id;
-	});
+		return id
+	})
 
 	// Return error if any required parameter is missing
 	if (!normalizedRoomIds.length || !startDateTime || !endDateTime) {
